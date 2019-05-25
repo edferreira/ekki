@@ -1,4 +1,4 @@
-import {DefaultCrudRepository, juggler} from '@loopback/repository';
+import {DefaultCrudRepository} from '@loopback/repository';
 import {User} from '../models';
 import {DbDataSource} from '../datasources';
 import {inject} from '@loopback/core';

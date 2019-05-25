@@ -119,4 +119,15 @@ export class UserController {
   async deleteById(@param.path.string('id') id: string): Promise<void> {
     await this.userRepository.deleteById(id);
   }
+
+  @post('/login/', {
+    responses: {
+      '200': {
+        description: 'User authenticated with success'
+      }
+    }
+  })
+  async login(@requestBody() id: typeof User.prototype.id): Promise<User>{
+    return this.userRepository.findById(id)
+  }
 }
