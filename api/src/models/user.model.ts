@@ -1,4 +1,6 @@
-import {Entity, model, property} from '@loopback/repository';
+import {Entity, model, property, hasMany} from '@loopback/repository';
+import { Favorite } from './favorite.model';
+import { Transaction } from '.';
 
 @model()
 export class User extends Entity {
@@ -25,6 +27,23 @@ export class User extends Entity {
     required: true,
   })
   cellphone: string;
+
+  @property({
+    type: 'string',
+  })
+  accountNumber: string;
+
+  @property({
+    type: 'array',
+    itemType: 'object',
+  })
+  favorites?: Favorite[];
+
+  @hasMany(() => Transaction, {keyTo: 'from'})
+  transactionsDone?: Transaction[];
+
+  @hasMany(() => Transaction, {keyTo: 'to'})
+  transactionsReceived?: Transaction[];
 
   constructor(data?: Partial<User>) {
     super(data);

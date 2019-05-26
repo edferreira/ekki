@@ -92,7 +92,12 @@ export class UserController {
     },
   })
   async findById(@param.path.string('id') id: string): Promise<User> {
-    return await this.userRepository.findById(id);
+    const user = await this.userRepository.findById(id);
+    console.log(user.transactionsDone)
+    console.log(await this.userRepository.transactionsDone(id) )
+    console.log(await this.userRepository.transactionsDone(id).find() )
+    console.log(await this.userRepository.transactionsReceived(id).find() )
+    return user
   }
 
   @patch('/users/{id}', {
@@ -127,7 +132,7 @@ export class UserController {
       }
     }
   })
-  async login(@requestBody() id: typeof User.prototype.id): Promise<User>{
-    return this.userRepository.findById(id)
+  async login(@requestBody() user: {id: typeof User.prototype.id}): Promise<User>{
+    return this.userRepository.findById(user.id)
   }
 }
