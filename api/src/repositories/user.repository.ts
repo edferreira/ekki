@@ -1,9 +1,8 @@
-import {DefaultCrudRepository, DataObject, AnyObject, HasManyRepositoryFactory, repository} from '@loopback/repository';
+import {DefaultCrudRepository, HasManyRepositoryFactory, repository} from '@loopback/repository';
 import {User, Transaction} from '../models';
 import {DbDataSource} from '../datasources';
 import {inject, Getter} from '@loopback/core';
 import { TransactionRepository } from './transaction.repository';
-const uuidV4 = require('uuid/v4');
 
 
 export class UserRepository extends DefaultCrudRepository<
@@ -19,10 +18,5 @@ export class UserRepository extends DefaultCrudRepository<
     super(User, dataSource);
     this.transactionsDone = this.createHasManyRepositoryFactoryFor('transactionsDone', getTransactionRepository)
     this.transactionsReceived = this.createHasManyRepositoryFactoryFor('transactionsReceived', getTransactionRepository)
-  }
-
-  create(entity: DataObject<User>, options?: AnyObject | undefined): Promise<User> {
-    entity.accountNumber = uuidV4(); 
-    return super.create(entity, options)
   }
 }

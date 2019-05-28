@@ -14,6 +14,7 @@ import {
     Link
 } from '@material-ui/core';
 import FetchService from '../services/fetchService'
+import UserService from '../services/userService';
 
 const styles = {
   form: { 
@@ -62,10 +63,12 @@ class Login extends Component {
     }
 
     handleLogin = async (event) => {
-        if(!this.state.selectedUser) console.error('selecione um usuario')
+        if(!this.state.selectedUser) {
+            console.error('selecione um usuario')
+            return
+        }
         try {
-            const res = await FetchService.post('login', {id: this.state.selectedUser})
-            localStorage.setItem('user', JSON.stringify(res));
+            await UserService.login(this.state.selectedUser)
             this.props.history.push('/home')
         }
         catch(e) {

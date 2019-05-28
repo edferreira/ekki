@@ -1,6 +1,7 @@
 import {Entity, model, property, hasMany} from '@loopback/repository';
 import { Favorite } from './favorite.model';
 import { Transaction } from '.';
+const uuidV4 = require('uuid/v4');
 
 @model()
 export class User extends Entity {
@@ -30,6 +31,7 @@ export class User extends Entity {
 
   @property({
     type: 'string',
+    default: uuidV4()
   })
   accountNumber: string;
 
@@ -38,6 +40,18 @@ export class User extends Entity {
     itemType: 'object',
   })
   favorites?: Favorite[];
+
+  @property({
+    type: 'number',
+    default: 1000,
+  })
+  amount?: number;
+
+  @property({
+    type: 'number',
+    default: 500,
+  })
+  limit?: number;
 
   @hasMany(() => Transaction, {keyTo: 'from'})
   transactionsDone?: Transaction[];

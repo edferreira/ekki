@@ -1,8 +1,11 @@
+const SERVER_API = "http://localhost:8000"
+
+
 export default class FetchService {
     static async post(resource, body) {
+        let url = `${SERVER_API}/${resource}`
         try {
-            console.log(body)
-            const response = await fetch(`http://localhost:8000/${resource}`, {
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -19,9 +22,16 @@ export default class FetchService {
         }
     }
 
-    static async get(resource) {
+    static async get(resource, filters=undefined) {
+        let url = `${SERVER_API}/${resource}`
+
+        if(filters) {
+            const query_parameters = JSON.stringify(filters);
+            url = url + '?filter=' + query_parameters;
+        }
+        
         try {
-            const response = await fetch(`http://localhost:8000/${resource}`, {
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',

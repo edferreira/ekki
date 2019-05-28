@@ -11,9 +11,13 @@ import {
     Input,
     FormControl,
     InputLabel,
-    Link
+    Link,
+    ListItem,
+    List,
+    ListItemText
 } from '@material-ui/core';
-import FetchService from '../services/fetchService'
+import UserService from '../services/userService';
+import TransferPage from './transferPage'
 
 const styles = {
   container: { 
@@ -28,8 +32,9 @@ const styles = {
   content: {
     marginTop: 60,
   },
-  button: {
-      marginTop: 20,
+  transferButton: {
+      marginTop: 40,
+      marginBottom: 20,
 }
 };
 
@@ -38,25 +43,92 @@ class Login extends Component {
     constructor(props)  {
         super(props)
         this.state = {
-            selectedUser: '',
-            users: []
+            user: {},
+            transactions: [],
+            transferPageOpen: false
         }
     }
 
     componentDidMount() {
-        this.loadUser()
+        this.load()
     }
 
-    loadUser() {
+    async load() {
+        await this.loadUser()
+        this.loadTransactions()
+    }
 
+    async loadUser(){
+        const user = await UserService.getUser();
+        this.setState({user})
+    }
+
+    async loadTransactions() {
+        this.setState({loadingTransactions: true})
+        const userId = this.state.user.id
+        let transactions = []
+        try {
+            transactions = await UserService.getTransactions(userId)
+        }
+        catch(e) {
+            console.error(e)
+        }
+        finally {
+            console.log(transactions)
+            this.setState({loadingTransactions: false, transactions})
+        }
     }
 
     renderWallet() {
-        
+        return (
+            <>
+                <Typography align="center" variant="h3">{this.state.user.name} </Typography>
+                <Typography align="center" variant="h3">R$ {this.state.user.amount}</Typography>
+                {
+                    this.state.transferPageOpen === false ? (
+                    <Button
+                        style={styles.transferButton}
+                        size="large"
+                        variant="contained"
+                        color="primary"
+                        onClick={() => this.openTransferPage()}
+                        fullWidth
+                    >
+                        Transferir
+                    </Button> 
+                    ) : ( <TransferPage user={this.state.user}/> )
+                }
+            </>
+        )
+    }
+
+    openTransferPage() {
+        console.log('q')
+        this.setState({
+            transferPageOpen: true,
+        })
+    }
+
+    renderTransactionItem(item) {
+        return (
+            <ListItem key={item.id}>
+                { 
+                    item.from.id === this.state.user.id ? (
+                        <ListItemText primary={`enviado ${item.amount} para ${item.to.name}`} />
+                    ): (
+                        <ListItemText primary={`recebido ${item.amount} de ${item.from.name}`} />
+                    )
+                }
+            </ListItem>
+        )
     }
 
     renderTransactions() {
-        
+        return(
+            <List component="nav">
+                {this.state.transactions.map(transaction=>this.renderTransactionItem(transaction))}
+            </List>
+        )
     }
 
     render() {
@@ -68,7 +140,6 @@ class Login extends Component {
                     {this.renderTransactions()}
                 </Paper>
             </Grid>
-
         )
     }
 }
