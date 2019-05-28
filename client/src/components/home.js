@@ -69,6 +69,17 @@ class Login extends Component {
         let transactions = []
         try {
             transactions = await UserService.getTransactions(userId)
+            for(const transactionId in transactions) {
+                const transaction = transactions[transactionId];
+                if (transaction.to === userId) {
+                    transactions[transactionId].to = this.state.user
+                    transactions[transactionId].from = await UserService.findById(transaction.from)
+                }
+                else if (transaction.from === userId) {
+                    transactions[transactionId].from = this.state.user
+                    transactions[transactionId].to = await UserService.findById(transaction.to)
+                }
+            }
         }
         catch(e) {
             console.error(e)
@@ -84,26 +95,20 @@ class Login extends Component {
             <>
                 <Typography align="center" variant="h3">{this.state.user.name} </Typography>
                 <Typography align="center" variant="h3">R$ {this.state.user.amount}</Typography>
-                {
-                    this.state.transferPageOpen === false ? (
-                    <Button
-                        style={styles.transferButton}
-                        size="large"
-                        variant="contained"
-                        color="primary"
-                        onClick={() => this.openTransferPage()}
-                        fullWidth
-                    >
-                        Transferir
-                    </Button> 
-                    ) : ( <TransferPage user={this.state.user} callback={this.transferDone}/> )
-                }
             </>
         )
     }
 
+    transferDone = () => {
+        this.setState({transferPageOpen: false})
+        this.load()
+    }
+
+    renderTransactionForm() {
+        return (<TransferPage user={this.state.user} callback={this.transferDone}/> )
+    }
+
     openTransferPage() {
-        console.log('q')
         this.setState({
             transferPageOpen: true,
         })
@@ -125,7 +130,7 @@ class Login extends Component {
 
     renderTransactions() {
         return(
-            <List component="nav">
+            <List style={{height: 200, overflow: 'auto'}} >
                 {this.state.transactions.map(transaction=>this.renderTransactionItem(transaction))}
             </List>
         )
@@ -136,8 +141,24 @@ class Login extends Component {
             <Grid container justify="center" style={{height: '100%'}}>
                 <Paper style={styles.container}>
                     {this.renderWallet()}
-                    <Divider/>
-                    {this.renderTransactions()}
+                    {this.state.transferPageOpen === false ? (
+                        <>
+                            <Button
+                                style={styles.transferButton}
+                                size="large"
+                                variant="contained"
+                                color="primary"
+                                onClick={() => this.openTransferPage()}
+                                fullWidth
+                            >
+                                Transferir
+                            </Button> 
+                            <Divider/>
+                            {this.renderTransactions()}
+                        </>
+                    ): (
+                        this.renderTransactionForm()
+                    )}
                 </Paper>
             </Grid>
         )

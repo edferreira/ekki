@@ -14,14 +14,17 @@ import {
   patch,
   del,
   requestBody,
+  HttpErrors,
 } from '@loopback/rest';
 import {Transaction} from '../models';
-import {TransactionRepository} from '../repositories';
+import {TransactionRepository, UserRepository} from '../repositories';
 
 export class TransactionController {
   constructor(
     @repository(TransactionRepository)
     public transactionRepository : TransactionRepository,
+    @repository(UserRepository)
+    public userRepository : UserRepository,
   ) {}
 
   @post('/transactions', {
@@ -33,7 +36,22 @@ export class TransactionController {
     },
   })
   async create(@requestBody() transaction: Transaction): Promise<Transaction> {
-    return await this.transactionRepository.create(transaction);
+    // TODO: lock user writes in here
+    let fromUser = await this.userRepository.findById(transaction.from)
+    if(fromUser.canDoTransaction(transaction.amount)) {
+      this.userRepository.updateById(
+        fromUser.id, {amount: fromUser.amount - transaction.amount}
+      )
+
+      let toUser = await this.userRepository.findById(transaction.to)
+      this.userRepository.updateById(
+        toUser.id, {amount: toUser.amount + transaction.amount}
+      )
+
+      return await this.transactionRepository.create(transaction);
+    }
+    else
+      throw new HttpErrors.BadRequest('user has not enought limit')
   }
 
   @get('/transactions/count', {

@@ -45,13 +45,13 @@ export class User extends Entity {
     type: 'number',
     default: 1000,
   })
-  amount?: number;
+  amount: number;
 
   @property({
     type: 'number',
     default: 500,
   })
-  limit?: number;
+  limit: number;
 
   @hasMany(() => Transaction, {keyTo: 'from'})
   transactionsDone?: Transaction[];
@@ -61,5 +61,9 @@ export class User extends Entity {
 
   constructor(data?: Partial<User>) {
     super(data);
+  }
+
+  canDoTransaction(amount: number) {
+    return (this.amount + this.limit) >= amount 
   }
 }

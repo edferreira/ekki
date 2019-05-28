@@ -15,7 +15,7 @@ import {
   del,
   requestBody,
 } from '@loopback/rest';
-import {User} from '../models';
+import {User, Favorite} from '../models';
 import {UserRepository} from '../repositories';
 
 export class UserController {
@@ -129,5 +129,27 @@ export class UserController {
   })
   async login(@requestBody() user: {id: typeof User.prototype.id}): Promise<User>{
     return this.userRepository.findById(user.id)
+  }
+
+  @post('/users/{id}/favorite', {
+    responses: {
+      '204': {
+        description: 'User POST Favorite success',
+      },
+    },
+  })
+  async updateFavorite(
+    @param.path.string('id') id: string,
+    @requestBody() favorite: Favorite,
+  ): Promise<User> {
+    const user = await this.userRepository.findById(id);
+    if (!user.favorites) user.favorites=[]
+
+    let indexOfItemInArray = user.favorites.findIndex(
+      f => f.accountNumber === favorite.accountNumber
+    );
+    user.favorites.splice(indexOfItemInArray, 1, favorite);
+    await this.userRepository.updateById(id, user);
+    return this.userRepository.findById(id)
   }
 }

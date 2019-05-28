@@ -13,7 +13,8 @@ import {
     InputLabel,
     Link,
     FormControlLabel,
-    Checkbox
+    Checkbox,
+    Card
 } from '@material-ui/core';
 import UserService from '../services/userService';
 import TransactionService from '../services/transactionServer';
@@ -35,7 +36,8 @@ class TransferPage extends Component {
             name: "",
             amout: 0,
             favorites: [],
-            favoriteAccountNumber: ''
+            favoriteAccountNumber: '',
+            saveAsFavorite: false,
         }
     }
 
@@ -46,19 +48,17 @@ class TransferPage extends Component {
     handleChange(event) {
         const favoriteAccountNumber = event.target.value
         const {name, accountNumber, cpf } = this.state.favorites.filter(x => x.accountNumber == favoriteAccountNumber)[0]
-        console.log(name,accountNumber, cpf)
         this.setState({name, accountNumber, cpf, favoriteAccountNumber})
         event.preventDefault();
     }
 
     async loadFavorites() {
         const favorites = await UserService.loadFavorites(this.props.user.id)
-        this.setState({favorites})
+        if(favorites) this.setState({favorites})
     }
 
     renderFavorites = () => {
-        const { favorites } = this.state
-        console.log(favorites)
+        const favorites = this.state.favorites
         return (
             favorites.map(favorite => <MenuItem key={favorite.accountNumber} value={favorite.accountNumber}>{`${favorite.accountNumber} - ${favorite.name}`}</MenuItem>)
         )
@@ -69,16 +69,30 @@ class TransferPage extends Component {
     }
 
     doTransaction = async () => {
-        console.log('ça')
         if(this.validateForm()){
-            const toUser = await UserService.findUser(this.state.accountNumber, this.state.name, this.state.cpf)
-            console.log(toUser)
-            TransactionService.create(this.props.user.id, toUser.id, parseInt(this.state.amount, 10))
+            const toUser = await UserService.findUser(
+                this.state.accountNumber, 
+                this.state.name,
+                this.state.cpf
+            )
+
+            if (this.state.saveAsFavorite) {
+                await UserService.addOrUpdateFavorite(this.props.user.id, toUser)
+            }
+
+            await TransactionService.create(
+                this.props.user.id, 
+                toUser.id, 
+                parseFloat(this.state.amount)
+            )
+
+            this.props.callback()
         }
     }
 
     render() {
         return (
+            <Card style={{padding: 20}}>
             <Grid container justify="center" spacing={2}>
                 <Grid item xs={12}>
                     <FormControl style={styles.formControl} fullWidth={true}>
@@ -148,10 +162,19 @@ class TransferPage extends Component {
                         />
                     </FormControl>
                 </Grid>
-                <Grid item xs={6}>
-                    <FormControlLabel control={<Checkbox value="checkedC" />} label="salvar favorito" />
+                <Grid item xs={4}>
+                    <FormControlLabel 
+                        control={
+                            <Checkbox 
+                                checked={this.state.saveAsFavorite}
+                                value={"saveAsFavorite"} 
+                                onChange={(e) => {this.setState({saveAsFavorite: e.target.checked})}}
+                            />
+                        } 
+                        label="salvar favorito" 
+                    />
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={4}>
                     <Button
                         style={styles.transferButton}
                         size="large"
@@ -162,7 +185,17 @@ class TransferPage extends Component {
                         Transferir
                     </Button> 
                 </Grid>
+                <Grid item xs={4}>
+                    <Button
+                        style={styles.transferButton}
+                        size="large"
+                        onClick={() => this.props.callback()}
+                    >
+                        Cancelar 
+                    </Button> 
+                </Grid>
             </Grid>
+            </Card>
         )
     }
 }

@@ -14,25 +14,34 @@ export default class UserService {
     }
 
     static async getUser() {
-        return JSON.parse(await localStorage.getItem('user'))
+        const user = JSON.parse(await localStorage.getItem('user'))
+        return UserService.findById(user.id)
     }
 
     static async getTransactions(userId) {
-        const filter = {"where": {"or": [{"to.id": userId}, {"from.id": userId}]}}
+        const filter = {"where": {"or": [{"to": userId}, {"from": userId}]}}
         const res = await FetchService.get('transactions', filter)
-        console.log(res)
         return res
     }
 
     static async loadFavorites(userId) {
         const res = await FetchService.get(`users/${userId}`)
-        console.log(res)
         return res.favorites
     }
 
     static async findUser(accountNumber, name, cpf) {
         const filter = {"where": {accountNumber, name, cpf}}
         const res = await FetchService.get(`users`, filter)
-        return res[0]
+        return res.length > 0 ? res[0] : {}
+    }
+
+    static async findById(userId) {
+        const res = await FetchService.get(`users/${userId}`)
+        return res;
+    }
+
+    static async addOrUpdateFavorite(userId, newFavorite) {
+        const res = await FetchService.post(`users/${userId}/favorite`, newFavorite)
+        console.log(res)
     }
 }
