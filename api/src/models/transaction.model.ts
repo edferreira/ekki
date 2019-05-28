@@ -3,10 +3,16 @@ import { User } from '.';
 
 @model()
 export class Transaction extends Entity {
-  @belongsTo(() => User)
+  @property({
+    type: 'string',
+    required: 'true'
+  })
   from: typeof User.prototype.id;
 
-  @belongsTo(() => User)
+  @property({
+    type: 'string',
+    required: 'true'
+  })
   to: typeof User.prototype.id;
 
   @property({

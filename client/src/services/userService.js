@@ -29,4 +29,10 @@ export default class UserService {
         console.log(res)
         return res.favorites
     }
+
+    static async findUser(accountNumber, name, cpf) {
+        const filter = {"where": {accountNumber, name, cpf}}
+        const res = await FetchService.get(`users`, filter)
+        return res[0]
+    }
 }

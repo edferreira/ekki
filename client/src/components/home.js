@@ -96,7 +96,7 @@ class Login extends Component {
                     >
                         Transferir
                     </Button> 
-                    ) : ( <TransferPage user={this.state.user}/> )
+                    ) : ( <TransferPage user={this.state.user} callback={this.transferDone}/> )
                 }
             </>
         )

@@ -4,6 +4,8 @@ const SERVER_API = "http://localhost:8000"
 export default class FetchService {
     static async post(resource, body) {
         let url = `${SERVER_API}/${resource}`
+        console.log(url)
+        console.log(body)
         try {
             const response = await fetch(url, {
                 method: 'POST',
@@ -18,7 +20,7 @@ export default class FetchService {
             else
                 throw(response)
         } catch (e) {
-            throw {message: "Erro ao cadastrar usuário", error: e}
+            throw e
         }
     }
 
