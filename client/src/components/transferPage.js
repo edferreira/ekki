@@ -1,24 +1,21 @@
 import React, {Component} from 'react';
-import { Redirect, withRouter} from 'react-router-dom';
 import {
     Grid, 
     Typography, 
     Button, 
     Select, 
     MenuItem, 
-    Paper, 
     Divider, 
     Input,
     FormControl,
     InputLabel,
-    Link,
     FormControlLabel,
     Checkbox,
     Card,
     Modal,
 } from '@material-ui/core';
 import UserService from '../services/userService';
-import TransactionService from '../services/transactionServer';
+import TransactionService from '../services/transactionService';
 import CpfInput from './inputs/cpfInput';
 import MoneyInput from './inputs/moneyInput';
 import { toast } from 'react-toastify';
@@ -52,7 +49,7 @@ class TransferPage extends Component {
 
     handleChange(event) {
         const favoriteAccountNumber = event.target.value
-        const {name, accountNumber, cpf } = this.state.favorites.filter(x => x.accountNumber == favoriteAccountNumber)[0]
+        const {name, accountNumber, cpf } = this.state.favorites.filter(x => x.accountNumber === favoriteAccountNumber)[0]
         this.setState({name, accountNumber, cpf, favoriteAccountNumber})
         event.preventDefault();
     }
@@ -103,14 +100,14 @@ class TransferPage extends Component {
         }
         catch(e) {
             let errorMessage; 
-            if(e.error && e.error.message == "Invalid transaction") {
+            if(e.error && e.error.message === "Invalid transaction") {
                 errorMessage = 'Esta transação é inválida'
-            } else if(e.error && e.error.message == "Need to use limit") {
+            } else if(e.error && e.error.message === "Need to use limit") {
                 // if user has enought limit, but not enought balance, ask if it wants to use the limit
                 this.setState({needToUseLimit: true})
-            } else if(e.error && e.error.message == "Limit is not enough") {
+            } else if(e.error && e.error.message === "Limit is not enough") {
                 errorMessage = 'Seu limite é insuficiente'
-            } else if(e && e.message == "target user not found") {
+            } else if(e && e.message === "target user not found") {
                 errorMessage = 'Destinatário não encontrado'
             } else {
                 errorMessage = 'Erro ao realizar transação'
@@ -138,6 +135,7 @@ class TransferPage extends Component {
                 transform: `translate(-50%, -50%)`, 
             }}>
                 <Typography>É necessário usar seu limite para finalizar esta operação</Typography>
+                <Divider/>
                 <Button
                     style={styles.transferButton}
                     size="large"

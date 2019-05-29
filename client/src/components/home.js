@@ -1,17 +1,10 @@
 import React, {Component} from 'react';
-import { Redirect, withRouter} from 'react-router-dom';
 import {
     Grid, 
     Typography, 
     Button, 
-    Select, 
-    MenuItem, 
     Paper, 
     Divider, 
-    Input,
-    FormControl,
-    InputLabel,
-    Link,
     ListItem,
     List,
     ListItemText

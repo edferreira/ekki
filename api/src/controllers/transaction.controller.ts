@@ -24,9 +24,9 @@ import TransactionService from '../services/transaction.service';
 export class TransactionController {
   constructor(
     @repository(TransactionRepository)
-    public transactionRepository : TransactionRepository,
+    public transactionRepository: TransactionRepository,
     @repository(UserRepository)
-    public userRepository : UserRepository,
+    public userRepository: UserRepository,
   ) {}
 
   @post('/transactions', {
@@ -38,31 +38,35 @@ export class TransactionController {
     },
   })
   async create(@requestBody() transaction: Transaction): Promise<Transaction> {
-    const twoMinutesbefore = new Date()
-    twoMinutesbefore.setMinutes( twoMinutesbefore.getMinutes() - 2 );
+    const twoMinutesbefore = new Date();
+    twoMinutesbefore.setMinutes(twoMinutesbefore.getMinutes() - 2);
 
-    console.log(Transaction.valid(transaction))
-    if(!Transaction.valid(transaction)) throw new HttpErrors.BadRequest('Invalid transaction')
+    if (!Transaction.valid(transaction))
+      throw new HttpErrors.BadRequest('Invalid transaction');
 
-    const filter = new FilterBuilder().where({
-      from: {eq: transaction.from}, 
-      to: {eq: transaction.to}, 
-      amount: {eq: transaction.amount},
-      when: {gte: twoMinutesbefore}
-    }).order(["when DESC"]).filter
+    const filter = new FilterBuilder()
+      .where({
+        from: {eq: transaction.from},
+        to: {eq: transaction.to},
+        amount: {eq: transaction.amount},
+        when: {gte: twoMinutesbefore},
+      })
+      .order(['when DESC']).filter;
 
-    const similarTransaction = await this.transactionRepository.findOne(filter)
+    const similarTransaction = await this.transactionRepository.findOne(filter);
 
-    if(similarTransaction) {
-      similarTransaction.canceled = true
-      this.transactionRepository.update(similarTransaction)
+    if (similarTransaction) {
+      similarTransaction.canceled = true;
+      await this.transactionRepository.update(similarTransaction);
       return await this.transactionRepository.create(transaction);
+    } else {
+      const new_transaction = TransactionService.doTransaction(
+        transaction,
+        this.transactionRepository,
+        this.userRepository,
+      );
+      return new_transaction;
     }
-    else {
-      const new_transaction = TransactionService.doTransaction(transaction, this.transactionRepository, this.userRepository)
-      return new_transaction
-    }
-
   }
   @get('/transactions/count', {
     responses: {
@@ -91,7 +95,8 @@ export class TransactionController {
     },
   })
   async find(
-    @param.query.object('filter', getFilterSchemaFor(Transaction)) filter?: Filter,
+    @param.query.object('filter', getFilterSchemaFor(Transaction))
+    filter?: Filter,
   ): Promise<Transaction[]> {
     return await this.transactionRepository.find(filter);
   }

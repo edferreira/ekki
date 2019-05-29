@@ -1,5 +1,5 @@
-import {Entity, model, property } from '@loopback/repository';
-import { User } from '.';
+import {Entity, model, property} from '@loopback/repository';
+import {User} from '.';
 
 @model()
 export class Transaction extends Entity {
@@ -11,13 +11,13 @@ export class Transaction extends Entity {
 
   @property({
     type: 'string',
-    required: 'true'
+    required: 'true',
   })
   from: typeof User.prototype.id;
 
   @property({
     type: 'string',
-    required: 'true'
+    required: 'true',
   })
   to: typeof User.prototype.id;
 
@@ -35,7 +35,7 @@ export class Transaction extends Entity {
 
   @property({
     type: 'date',
-    default: () => new Date()
+    default: () => new Date(),
   })
   when?: string;
 
@@ -49,8 +49,8 @@ export class Transaction extends Entity {
     super(data);
   }
 
-  static valid(transaction: Transaction){
-    if (transaction.amount <= 0) return false
+  static valid(transaction: Transaction) {
+    if (transaction.amount <= 0) return false;
     return true;
   }
 }

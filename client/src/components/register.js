@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Redirect } from 'react-router-dom';
 import {
   Paper,
   FormControl,
@@ -10,7 +9,6 @@ import {
   Button,
   Divider
 } from '@material-ui/core';
-import { withRouter, } from 'react-router-dom';
 
 import FetchService from '../services/fetchService'
 import CpfInput from './inputs/cpfInput';

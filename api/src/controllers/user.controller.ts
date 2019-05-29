@@ -21,7 +21,7 @@ import {UserRepository} from '../repositories';
 export class UserController {
   constructor(
     @repository(UserRepository)
-    public userRepository : UserRepository,
+    public userRepository: UserRepository,
   ) {}
 
   @post('/users', {
@@ -123,12 +123,14 @@ export class UserController {
   @post('/login/', {
     responses: {
       '200': {
-        description: 'User authenticated with success'
-      }
-    }
+        description: 'User authenticated with success',
+      },
+    },
   })
-  async login(@requestBody() user: {id: typeof User.prototype.id}): Promise<User>{
-    return this.userRepository.findById(user.id)
+  async login(@requestBody() user: {id: typeof User.prototype.id}): Promise<
+    User
+  > {
+    return this.userRepository.findById(user.id);
   }
 
   @post('/users/{id}/favorite', {
@@ -143,13 +145,13 @@ export class UserController {
     @requestBody() favorite: Favorite,
   ): Promise<User> {
     const user = await this.userRepository.findById(id);
-    if (!user.favorites) user.favorites=[]
+    if (!user.favorites) user.favorites = [];
 
     let indexOfItemInArray = user.favorites.findIndex(
-      f => f.accountNumber === favorite.accountNumber
+      f => f.accountNumber === favorite.accountNumber,
     );
     user.favorites.splice(indexOfItemInArray, 1, favorite);
     await this.userRepository.updateById(id, user);
-    return this.userRepository.findById(id)
+    return this.userRepository.findById(id);
   }
 }

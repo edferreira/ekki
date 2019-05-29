@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import { Redirect, withRouter} from 'react-router-dom';
 import {
     Grid, 
     Typography, 
@@ -11,7 +10,6 @@ import {
     Input,
     FormControl,
     InputLabel,
-    Link
 } from '@material-ui/core';
 import FetchService from '../services/fetchService'
 import UserService from '../services/userService';

@@ -1,6 +1,6 @@
 import {Entity, model, property, hasMany} from '@loopback/repository';
-import { Favorite } from './favorite.model';
-import { Transaction } from '.';
+import {Favorite} from './favorite.model';
+import {Transaction} from '.';
 const uuidV4 = require('uuid/v4');
 
 @model()
@@ -31,7 +31,7 @@ export class User extends Entity {
 
   @property({
     type: 'string',
-    default: uuidV4()
+    default: uuidV4(),
   })
   accountNumber: string;
 
@@ -64,7 +64,7 @@ export class User extends Entity {
   }
 
   canDoTransaction(requestedAmount: number, useLimit: boolean) {
-    const total = useLimit ? this.amount + this.limit : this.amount
+    const total = useLimit ? this.amount + this.limit : this.amount;
     return total >= requestedAmount;
   }
 }
