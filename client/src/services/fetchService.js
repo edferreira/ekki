@@ -40,9 +40,13 @@ export default class FetchService {
                 },
             })
             try {
-                return response.json()
+                if(response.ok) {
+                    return response.json()
+                }
+                else {
+                    throw(await response.json())
+                }
             } catch (e) {
-                console.error(e)
                 throw e
             }
         } catch (e) {

@@ -32,7 +32,7 @@ export default class UserService {
     static async findUser(accountNumber, name, cpf) {
         const filter = {"where": {accountNumber, name, cpf}}
         const res = await FetchService.get(`users`, filter)
-        return res.length > 0 ? res[0] : {}
+        return (res.length > 0) && res[0]  
     }
 
     static async findById(userId) {

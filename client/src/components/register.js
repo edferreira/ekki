@@ -13,6 +13,8 @@ import {
 import { withRouter, } from 'react-router-dom';
 
 import FetchService from '../services/fetchService'
+import CpfInput from './inputs/cpfInput';
+import PhoneInput from './inputs/phoneInput';
 
 const styles = {
   form: { padding: 20, width: 700 },
@@ -82,6 +84,7 @@ class Register extends React.Component {
               name="cpf"
               value={cpf}
               onChange={this.handleChange}
+              inputComponent={CpfInput}
             />
           </FormControl>
           <FormControl style={styles.formControl} fullWidth>
@@ -91,6 +94,7 @@ class Register extends React.Component {
               name="cellphone"
               value={cellphone}
               onChange={this.handleChange}
+              inputComponent={PhoneInput}
             />
           </FormControl>
           <div style={styles.buttonPanel}>

@@ -18,6 +18,10 @@ import {
 } from '@material-ui/core';
 import UserService from '../services/userService';
 import TransactionService from '../services/transactionServer';
+import CpfInput from './inputs/cpfInput';
+import MoneyInput from './inputs/moneyInput';
+import { toast } from 'react-toastify';
+
 
 const styles = { 
     formControl: {
@@ -34,7 +38,7 @@ class TransferPage extends Component {
             cellphone: "",
             cpf: "",
             name: "",
-            amout: 0,
+            amount: '',
             favorites: [],
             favoriteAccountNumber: '',
             saveAsFavorite: false,
@@ -43,6 +47,12 @@ class TransferPage extends Component {
 
     componentDidMount() {
         this.loadFavorites()
+    }
+
+    componentDidCatch(error, info) {
+        console.log("CATCH")
+        console.log(error)
+        console.log(info)
     }
 
     handleChange(event) {
@@ -69,35 +79,46 @@ class TransferPage extends Component {
     }
 
     doTransaction = async () => {
-        if(this.validateForm()){
+        if(!this.validateForm()) return false
+
+        try {
             const toUser = await UserService.findUser(
                 this.state.accountNumber, 
                 this.state.name,
                 this.state.cpf
             )
 
+            console.log(toUser)
+            if (!toUser ) {
+                throw new Error('target user not found')
+            }
+
             if (this.state.saveAsFavorite) {
                 await UserService.addOrUpdateFavorite(this.props.user.id, toUser)
             }
 
-            try {
-                await TransactionService.create(
-                    this.props.user.id, 
-                    toUser.id, 
-                    parseFloat(this.state.amount)
-                )
-                this.props.callback()
-            }
-            catch(e) {
-                if(e.error && e.error.message == "Invalid transaction") {
-                    console.log('invalid transaction')
-                } else if(e.error && e.error.message == "Need to use limit") {
-                    console.log('need limit')
-                } else if(e.error && e.error.message == "Limit is not enough") {
-                    console.log('not enough')
-                } else {
-                    console.log('erro')
-                }
+            let rawAmount = this.state.amount.replace(/\./g, '').replace('R$ ', '').replace(',', '.')
+
+            await TransactionService.create(
+                this.props.user.id, 
+                toUser.id, 
+                parseFloat( rawAmount )
+            )
+            this.props.callback()
+        }
+        catch(e) {
+            toast('lala')
+            if(e.error && e.error.message == "Invalid transaction") {
+                console.log('invalid transaction')
+            } else if(e.error && e.error.message == "Need to use limit") {
+                console.log('need limit')
+            } else if(e.error && e.error.message == "Limit is not enough") {
+                console.log('not enough')
+            } else if(e && e.message == "target user not found") {
+                console.log('user not found')
+            } else {
+                console.log('erro')
+                console.log(e)
             }
         }
     }
@@ -158,6 +179,7 @@ class TransferPage extends Component {
                             name="cpf"
                             value={this.state.cpf}
                             onChange={(e) => this.setState({...this.state, cpf: e.target.value})}
+                            inputComponent={CpfInput}
                         />
                     </FormControl>
                 </Grid>
@@ -169,8 +191,12 @@ class TransferPage extends Component {
                             id="amount"
                             name="amount"
                             value={ this.state.amount }
-                            type="number"
-                            onChange={(e) => this.setState({...this.state, amount: e.target.value})}
+                            // type="number"
+                            onChange={(e) => {
+                                console.log(e.target.value)
+                                this.setState({...this.state, amount: e.target.value})}
+                            }
+                            inputComponent={MoneyInput}
                         />
                     </FormControl>
                 </Grid>
