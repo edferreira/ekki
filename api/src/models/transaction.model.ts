@@ -50,7 +50,7 @@ export class Transaction extends Entity {
   }
 
   static valid(transaction: Transaction){
-    if (transaction.amount < 0) return false
+    if (transaction.amount <= 0) return false
     return true;
   }
 }

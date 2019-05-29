@@ -13,6 +13,7 @@ export default class FetchService {
                 },
                 body: JSON.stringify(body)
             })
+            console.log(response)
             if(response.ok)
                 return response.json()
             else {

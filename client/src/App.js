@@ -5,8 +5,10 @@ import Login from './components/login'
 import Register from './components/register'
 import Home from './components/home'
 
-import { ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+toast.configure()
 
 export default props => (
       <BrowserRouter>
@@ -17,6 +19,5 @@ export default props => (
             <Route exact path='/home' component={ Home } />
           </ScrollToTop>
         </Switch>
-        <ToastContainer/>
       </BrowserRouter>
   )

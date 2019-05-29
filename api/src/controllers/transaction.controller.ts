@@ -41,6 +41,7 @@ export class TransactionController {
     const twoMinutesbefore = new Date()
     twoMinutesbefore.setMinutes( twoMinutesbefore.getMinutes() - 2 );
 
+    console.log(Transaction.valid(transaction))
     if(!Transaction.valid(transaction)) throw new HttpErrors.BadRequest('Invalid transaction')
 
     const filter = new FilterBuilder().where({

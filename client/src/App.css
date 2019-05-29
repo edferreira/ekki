@@ -27,6 +27,13 @@ html, body, .App, .App>div {
   color: #61dafb;
 }
 
+.modal-dialog {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) !important;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

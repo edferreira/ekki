@@ -14,7 +14,8 @@ import {
     Link,
     FormControlLabel,
     Checkbox,
-    Card
+    Card,
+    Modal,
 } from '@material-ui/core';
 import UserService from '../services/userService';
 import TransactionService from '../services/transactionServer';
@@ -22,13 +23,11 @@ import CpfInput from './inputs/cpfInput';
 import MoneyInput from './inputs/moneyInput';
 import { toast } from 'react-toastify';
 
-
 const styles = { 
     formControl: {
         marginBottom: 20,
     }
 };
-
 
 class TransferPage extends Component {
     constructor(props) {
@@ -39,20 +38,16 @@ class TransferPage extends Component {
             cpf: "",
             name: "",
             amount: '',
+            useLimit: false,
             favorites: [],
             favoriteAccountNumber: '',
             saveAsFavorite: false,
+            needToUseLimit: false,
         }
     }
 
     componentDidMount() {
         this.loadFavorites()
-    }
-
-    componentDidCatch(error, info) {
-        console.log("CATCH")
-        console.log(error)
-        console.log(info)
     }
 
     handleChange(event) {
@@ -78,7 +73,7 @@ class TransferPage extends Component {
         return true
     }
 
-    doTransaction = async () => {
+    doTransaction = async (useLimit=false) => {
         if(!this.validateForm()) return false
 
         try {
@@ -88,7 +83,6 @@ class TransferPage extends Component {
                 this.state.cpf
             )
 
-            console.log(toUser)
             if (!toUser ) {
                 throw new Error('target user not found')
             }
@@ -102,26 +96,67 @@ class TransferPage extends Component {
             await TransactionService.create(
                 this.props.user.id, 
                 toUser.id, 
-                parseFloat( rawAmount )
+                parseFloat( rawAmount ),
+                useLimit,
             )
             this.props.callback()
         }
         catch(e) {
-            toast('lala')
+            let errorMessage; 
             if(e.error && e.error.message == "Invalid transaction") {
-                console.log('invalid transaction')
+                errorMessage = 'Esta transação é inválida'
             } else if(e.error && e.error.message == "Need to use limit") {
-                console.log('need limit')
+                // if user has enought limit, but not enought balance, ask if it wants to use the limit
+                this.setState({needToUseLimit: true})
             } else if(e.error && e.error.message == "Limit is not enough") {
-                console.log('not enough')
+                errorMessage = 'Seu limite é insuficiente'
             } else if(e && e.message == "target user not found") {
-                console.log('user not found')
+                errorMessage = 'Destinatário não encontrado'
             } else {
-                console.log('erro')
-                console.log(e)
+                errorMessage = 'Erro ao realizar transação'
             }
+
+            if(errorMessage) toast.error(errorMessage)
         }
     }
+
+    renderLimitConfirmationModal = () => (
+        <Modal 
+            aria-labelledby="simple-modal-title"
+            aria-describedby="simple-modal-description"
+            open={this.state.needToUseLimit}
+            onClose={()=>{}}
+        >
+            <div className={'modal-dialog'} style={{
+                position: 'absolute',
+                width: 400,
+                padding: 20,
+                outline: 'none',
+                backgroundColor: 'white',
+                top: '50%',
+                left: '50%',
+                transform: `translate(-50%, -50%)`, 
+            }}>
+                <Typography>É necessário usar seu limite para finalizar esta operação</Typography>
+                <Button
+                    style={styles.transferButton}
+                    size="large"
+                    variant="contained"
+                    color="primary"
+                    onClick={() => this.doTransaction(true)}
+                >
+                    Transferir
+                </Button> 
+                <Button
+                    style={styles.transferButton}
+                    size="large"
+                    onClick={() => this.setState({needToUseLimit: false})}
+                >
+                    Cancelar 
+                </Button> 
+            </div>
+        </Modal >
+    )
 
     render() {
         return (
@@ -151,10 +186,8 @@ class TransferPage extends Component {
                             name="accountNumber"
                             value={this.state.accountNumber}
                             onChange={(e) => {
-                                console.log(e.target.value)
                                 this.setState({...this.state, accountNumber: e.target.value})
-                            }
-                            }
+                            }}
                         />
                     </FormControl>
                 </Grid>
@@ -193,8 +226,12 @@ class TransferPage extends Component {
                             value={ this.state.amount }
                             // type="number"
                             onChange={(e) => {
-                                console.log(e.target.value)
-                                this.setState({...this.state, amount: e.target.value})}
+                                this.setState({
+                                    ...this.state, 
+                                    needToUseLimit: false,
+                                    useLimit: false,
+                                    amount: e.target.value
+                                })}
                             }
                             inputComponent={MoneyInput}
                         />
@@ -233,6 +270,7 @@ class TransferPage extends Component {
                     </Button> 
                 </Grid>
             </Grid>
+            {this.renderLimitConfirmationModal()}
             </Card>
         )
     }
