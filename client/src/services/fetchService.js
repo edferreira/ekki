@@ -4,8 +4,6 @@ const SERVER_API = "http://localhost:8000"
 export default class FetchService {
     static async post(resource, body) {
         let url = `${SERVER_API}/${resource}`
-        console.log(url)
-        console.log(body)
         try {
             const response = await fetch(url, {
                 method: 'POST',
@@ -17,8 +15,9 @@ export default class FetchService {
             })
             if(response.ok)
                 return response.json()
-            else
-                throw(response)
+            else {
+                throw(await response.json())
+            }
         } catch (e) {
             throw e
         }

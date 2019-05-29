@@ -1,8 +1,14 @@
-import {Entity, model, property, belongsTo} from '@loopback/repository';
+import {Entity, model, property } from '@loopback/repository';
 import { User } from '.';
 
 @model()
 export class Transaction extends Entity {
+  @property({
+    type: 'string',
+    id: true,
+  })
+  id?: string;
+
   @property({
     type: 'string',
     required: 'true'
@@ -16,10 +22,10 @@ export class Transaction extends Entity {
   to: typeof User.prototype.id;
 
   @property({
-    type: 'string',
-    id: true,
+    type: 'boolean',
+    default: false,
   })
-  id?: string;
+  useLimit: boolean;
 
   @property({
     type: 'number',
@@ -29,11 +35,22 @@ export class Transaction extends Entity {
 
   @property({
     type: 'date',
-    default: new Date()
+    default: () => new Date()
   })
   when?: string;
 
+  @property({
+    type: 'boolean',
+    default: false,
+  })
+  canceled: boolean;
+
   constructor(data?: Partial<Transaction>) {
     super(data);
+  }
+
+  static valid(transaction: Transaction){
+    if (transaction.amount < 0) return false
+    return true;
   }
 }

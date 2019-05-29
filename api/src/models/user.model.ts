@@ -63,7 +63,8 @@ export class User extends Entity {
     super(data);
   }
 
-  canDoTransaction(amount: number) {
-    return (this.amount + this.limit) >= amount 
+  canDoTransaction(requestedAmount: number, useLimit: boolean) {
+    const total = useLimit ? this.amount + this.limit : this.amount
+    return total >= requestedAmount;
   }
 }

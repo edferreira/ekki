@@ -4,6 +4,7 @@ import {
   Filter,
   repository,
   Where,
+  FilterBuilder,
 } from '@loopback/repository';
 import {
   post,
@@ -18,6 +19,7 @@ import {
 } from '@loopback/rest';
 import {Transaction} from '../models';
 import {TransactionRepository, UserRepository} from '../repositories';
+import TransactionService from '../services/transaction.service';
 
 export class TransactionController {
   constructor(
@@ -36,24 +38,31 @@ export class TransactionController {
     },
   })
   async create(@requestBody() transaction: Transaction): Promise<Transaction> {
-    // TODO: lock user writes in here
-    let fromUser = await this.userRepository.findById(transaction.from)
-    if(fromUser.canDoTransaction(transaction.amount)) {
-      this.userRepository.updateById(
-        fromUser.id, {amount: fromUser.amount - transaction.amount}
-      )
+    const twoMinutesbefore = new Date()
+    twoMinutesbefore.setMinutes( twoMinutesbefore.getMinutes() - 2 );
 
-      let toUser = await this.userRepository.findById(transaction.to)
-      this.userRepository.updateById(
-        toUser.id, {amount: toUser.amount + transaction.amount}
-      )
+    if(!Transaction.valid(transaction)) throw new HttpErrors.BadRequest('Invalid transaction')
 
+    const filter = new FilterBuilder().where({
+      from: {eq: transaction.from}, 
+      to: {eq: transaction.to}, 
+      amount: {eq: transaction.amount},
+      when: {gte: twoMinutesbefore}
+    }).order(["when DESC"]).filter
+
+    const similarTransaction = await this.transactionRepository.findOne(filter)
+
+    if(similarTransaction) {
+      similarTransaction.canceled = true
+      this.transactionRepository.update(similarTransaction)
       return await this.transactionRepository.create(transaction);
     }
-    else
-      throw new HttpErrors.BadRequest('user has not enought limit')
-  }
+    else {
+      const new_transaction = TransactionService.doTransaction(transaction, this.transactionRepository, this.userRepository)
+      return new_transaction
+    }
 
+  }
   @get('/transactions/count', {
     responses: {
       '200': {

@@ -5,6 +5,7 @@ export {EkkiApplication};
 
 export async function main(options: ApplicationConfig = {}) {
   const app = new EkkiApplication(options);
+
   await app.boot();
   await app.start();
 

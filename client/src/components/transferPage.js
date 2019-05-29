@@ -80,13 +80,25 @@ class TransferPage extends Component {
                 await UserService.addOrUpdateFavorite(this.props.user.id, toUser)
             }
 
-            await TransactionService.create(
-                this.props.user.id, 
-                toUser.id, 
-                parseFloat(this.state.amount)
-            )
-
-            this.props.callback()
+            try {
+                await TransactionService.create(
+                    this.props.user.id, 
+                    toUser.id, 
+                    parseFloat(this.state.amount)
+                )
+                this.props.callback()
+            }
+            catch(e) {
+                if(e.error && e.error.message == "Invalid transaction") {
+                    console.log('invalid transaction')
+                } else if(e.error && e.error.message == "Need to use limit") {
+                    console.log('need limit')
+                } else if(e.error && e.error.message == "Limit is not enough") {
+                    console.log('not enough')
+                } else {
+                    console.log('erro')
+                }
+            }
         }
     }
 
