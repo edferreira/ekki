@@ -47,11 +47,9 @@ class Register extends React.Component {
 
     try{
         const res = await FetchService.post('users', {name, cpf, cellphone})
-        console.log(res)
         this.props.history.push('/')
     }
     catch(e) {
-        console.log('que cu')
         console.error(e)
     }
   };

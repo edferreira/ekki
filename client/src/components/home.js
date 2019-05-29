@@ -77,7 +77,6 @@ class Login extends Component {
             console.error(e)
         }
         finally {
-            console.log(transactions)
             this.setState({loadingTransactions: false, transactions})
         }
     }

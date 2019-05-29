@@ -47,7 +47,7 @@ export class UserController {
   async count(
     @param.query.object('where', getWhereSchemaFor(User)) where?: Where,
   ): Promise<Count> {
-    return await this.userRepository.count(where);
+    return await this.userRepository.count(new Object(where));
   }
 
   @get('/users', {
@@ -65,7 +65,7 @@ export class UserController {
   async find(
     @param.query.object('filter', getFilterSchemaFor(User)) filter?: Filter,
   ): Promise<User[]> {
-    return await this.userRepository.find(filter);
+    return await this.userRepository.find(new Object(filter));
   }
 
   @patch('/users', {
@@ -80,7 +80,7 @@ export class UserController {
     @requestBody() user: User,
     @param.query.object('where', getWhereSchemaFor(User)) where?: Where,
   ): Promise<Count> {
-    return await this.userRepository.updateAll(user, where);
+    return await this.userRepository.updateAll(user, new Object(where));
   }
 
   @get('/users/{id}', {

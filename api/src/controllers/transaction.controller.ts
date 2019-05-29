@@ -4,7 +4,6 @@ import {
   Filter,
   repository,
   Where,
-  FilterBuilder,
 } from '@loopback/repository';
 import {
   post,
@@ -44,14 +43,16 @@ export class TransactionController {
     if (!Transaction.valid(transaction))
       throw new HttpErrors.BadRequest('Invalid transaction');
 
-    const filter = new FilterBuilder()
-      .where({
+    // const filter: Filter<Transaction> = new FilterBuilder()
+    const filter = new Object({
+      where: {
         from: {eq: transaction.from},
         to: {eq: transaction.to},
         amount: {eq: transaction.amount},
         when: {gte: twoMinutesbefore},
-      })
-      .order(['when DESC']).filter;
+      },
+      order: ['when DESC'],
+    });
 
     const similarTransaction = await this.transactionRepository.findOne(filter);
 
@@ -67,19 +68,6 @@ export class TransactionController {
       );
       return new_transaction;
     }
-  }
-  @get('/transactions/count', {
-    responses: {
-      '200': {
-        description: 'Transaction model count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-  async count(
-    @param.query.object('where', getWhereSchemaFor(Transaction)) where?: Where,
-  ): Promise<Count> {
-    return await this.transactionRepository.count(where);
   }
 
   @get('/transactions', {
@@ -98,7 +86,7 @@ export class TransactionController {
     @param.query.object('filter', getFilterSchemaFor(Transaction))
     filter?: Filter,
   ): Promise<Transaction[]> {
-    return await this.transactionRepository.find(filter);
+    return await this.transactionRepository.find(new Object(filter));
   }
 
   @patch('/transactions', {
@@ -113,7 +101,10 @@ export class TransactionController {
     @requestBody() transaction: Transaction,
     @param.query.object('where', getWhereSchemaFor(Transaction)) where?: Where,
   ): Promise<Count> {
-    return await this.transactionRepository.updateAll(transaction, where);
+    return await this.transactionRepository.updateAll(
+      transaction,
+      new Object(where),
+    );
   }
 
   @get('/transactions/{id}', {
