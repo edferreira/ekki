@@ -86,6 +86,8 @@ class Login extends Component {
             <>
                 <Typography align="center" variant="h3">{this.state.user.name} </Typography>
                 <Typography align="center" variant="h3">R$ {this.state.user.amount}</Typography>
+                <Typography align="center" variant="h5">número da conta: {this.state.user.id}</Typography>
+                <Typography align="center" variant="h5">cpf: {this.state.user.cpf}</Typography>
             </>
         )
     }

@@ -10,7 +10,7 @@ export class Favorite extends Model {
   @property({
     type: 'string',
   })
-  accountNumber?: string;
+  id?: string;
 
   @property({
     type: 'string',

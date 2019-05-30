@@ -148,7 +148,7 @@ export class UserController {
     if (!user.favorites) user.favorites = [];
 
     let indexOfItemInArray = user.favorites.findIndex(
-      f => f.accountNumber === favorite.accountNumber,
+      f => f.id === favorite.id,
     );
     user.favorites.splice(indexOfItemInArray, 1, favorite);
     await this.userRepository.updateById(id, user);

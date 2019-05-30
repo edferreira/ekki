@@ -30,12 +30,6 @@ export class User extends Entity {
   cellphone: string;
 
   @property({
-    type: 'string',
-    default: uuidV4(),
-  })
-  accountNumber: string;
-
-  @property({
     type: 'array',
     itemType: 'object',
   })

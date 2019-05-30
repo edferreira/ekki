@@ -30,14 +30,14 @@ class TransferPage extends Component {
     constructor(props) {
         super(props)
         this.state={
-            accountNumber : "",
+            accountId: "",
             cellphone: "",
             cpf: "",
             name: "",
             amount: '',
             useLimit: false,
             favorites: [],
-            favoriteAccountNumber: '',
+            favoriteAccountId: '',
             saveAsFavorite: false,
             needToUseLimit: false,
         }
@@ -48,9 +48,9 @@ class TransferPage extends Component {
     }
 
     handleChange(event) {
-        const favoriteAccountNumber = event.target.value
-        const {name, accountNumber, cpf } = this.state.favorites.filter(x => x.accountNumber === favoriteAccountNumber)[0]
-        this.setState({name, accountNumber, cpf, favoriteAccountNumber})
+        const favoriteAccountId = event.target.value
+        const {name, id, cpf } = this.state.favorites.filter(x => x.id === favoriteAccountId)[0]
+        this.setState({name, accountId: id, cpf, favoriteAccountId})
         event.preventDefault();
     }
 
@@ -62,7 +62,7 @@ class TransferPage extends Component {
     renderFavorites = () => {
         const favorites = this.state.favorites
         return (
-            favorites.map(favorite => <MenuItem key={favorite.accountNumber} value={favorite.accountNumber}>{`${favorite.accountNumber} - ${favorite.name}`}</MenuItem>)
+            favorites.map(favorite => <MenuItem key={favorite.id} value={favorite.id}>{`${favorite.id} - ${favorite.name}`}</MenuItem>)
         )
     }
 
@@ -75,7 +75,7 @@ class TransferPage extends Component {
 
         try {
             const toUser = await UserService.findUser(
-                this.state.accountNumber, 
+                this.state.accountId, 
                 this.state.name,
                 this.state.cpf
             )
@@ -164,7 +164,7 @@ class TransferPage extends Component {
                     <FormControl style={styles.formControl} fullWidth={true}>
                         <InputLabel htmlFor="user">Selecionar Favorito</InputLabel>
                         <Select
-                            value={this.state.favoriteAccountNumber}
+                            value={this.state.favoriteAccountId}
                             onChange={(e) => this.handleChange(e)}
                             inputProps={{
                                 name: 'name',
@@ -180,11 +180,11 @@ class TransferPage extends Component {
                     <FormControl style={styles.formControl} fullWidth>
                         <InputLabel>Número da conta</InputLabel>
                         <Input
-                            id="accountNumber"
-                            name="accountNumber"
-                            value={this.state.accountNumber}
+                            id="accountId"
+                            name="accountId"
+                            value={this.state.accountId}
                             onChange={(e) => {
-                                this.setState({...this.state, accountNumber: e.target.value})
+                                this.setState({...this.state, accountId: e.target.value})
                             }}
                         />
                     </FormControl>
