@@ -19,7 +19,7 @@ export default class UserService {
     }
 
     static async getTransactions(userId) {
-        const filter = {"where": {"or": [{"to": userId}, {"from": userId}]}}
+        const filter = {"where": {"or": [{"to": userId}, {"from": userId}], "canceled": false}}
         const res = await FetchService.get('transactions', filter)
         return res
     }

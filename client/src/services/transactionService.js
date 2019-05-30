@@ -6,7 +6,7 @@ export default class TransactionService {
       from,
       to,
       amount,
-      useLimit
+      useLimit,
     });
     return res;
   }
